@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Storage;
 
 class HomeController extends Controller
 {
@@ -18,6 +19,7 @@ class HomeController extends Controller
         return view("home", compact("products"));
     }
 
+
     //!update page
 
     public function show(Product $product)
@@ -25,24 +27,45 @@ class HomeController extends Controller
         return view("components.edite", compact("product"));
     }
 
+
     public function update(Request $request, Product $product)
     {
         request()->validate([
+            "image" => "required|mimes:png,jpg|max:2048",
             "name" => "required",
-            "price" => "required",
-            "type" => "required",
-            "stock" => "required",
+            "price" => "required"
+            
         ]);
+        
+        // dd($request);
+        
+
+        $uploadedFile = $request->file("image");
+   
         $product->update([
             "name" => $request->name,
             "price" => $request->price,
-            "type" => $request->type,
-            "stock" => $request->stock,
+            
         ]);
-        return back();
+        
+        $uploadedFile->move("storage/img", $product->image);
+
+        return redirect()->route("product.index");
     }
 
     //!
+
+    //? delete 
+
+    public function destroy(Product $product)
+    {
+        Storage::disk("public")->delete("img/" . $product->image);
+        $product->delete();
+        return back();
+    }
+
+
+    //?
 
     public function store(Request $request)
     {

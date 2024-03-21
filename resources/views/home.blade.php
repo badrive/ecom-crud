@@ -34,7 +34,7 @@
         <br><br>
 
             <input id="imgfile" type="file" name="image">
-            <input class="d-none" id="imgurl" type="text" name="image" placeholder="url image">
+            <input class="d-none" id="imgurl" type="text" name="link" placeholder="url image">
             
         </div>
 

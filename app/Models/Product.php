@@ -16,6 +16,12 @@ class Product extends Model
         "taille",
         "stock",
         "availability",
-        "price"
+        "price",
+        "cart_id"
     ];
+
+    public function cart(){
+        return $this->belongsTo(Cart::class);
+    }
+
 }

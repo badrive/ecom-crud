@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,6 +12,8 @@ Route::get("/product/update/{product}", [HomeController::class,"show"])->name("p
 //? post
 
 Route::post("/product/store", [HomeController::class,"store"])->name("product.store");
+
+Route::post('/cart/store',[CartController::class , "store"])->name("cart.store");
 
 
 //& put

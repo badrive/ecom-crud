@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Storage;
@@ -14,9 +15,10 @@ class HomeController extends Controller
     public function index()
     {
         // * select  all products
-        $products =  Product::all();
+        $carts = Cart::all();
+        $products = Product::all();
 
-        return view("home", compact("products"));
+        return view("home", compact("carts", "products"));
     }
 
 
@@ -38,19 +40,20 @@ class HomeController extends Controller
             "stock" => "required",
             "availability" => "required",
             "price" => "required"
-            
+
         ]);
 
         $availability = false;
         if ($request->availability == "true") {
             $availability = true;
-        };
-        
+        }
+        ;
+
         // dd($request);
-        
+
 
         // $uploadedFile = $request->file("image");
-   
+
         // $product->update([
         //     "image"=> $imageName,
         //     "name"=> $request->name,
@@ -59,29 +62,31 @@ class HomeController extends Controller
         //     "stock"=> $request->stock,
         //     "availability"=> $availability,
         //     "price"=> $request->price,
-            
+
         // ]);
-        
+
         // $uploadedFile->move("storage/img", $product->image);
 
         if ($request->has("image")) {
-                        
+
             $image = $request->file("image");
             $imageName = time() . "_" . $image->getClientOriginalName();
-            $image->storeAs("public/img", $imageName); 
+            $image->storeAs("public/img", $imageName);
 
             $uploadedFile = $request->file("image");
-   
+
             $product->update([
-                "image"=> $imageName,
-                "name"=> $request->name,
-                "type"=> $request->type,
-                "taille"=> $request->taille,
-                "stock"=> $request->stock,
-                "availability"=> $availability,
-                "price"=> $request->price,
-                
+                "image" => $imageName,
+                "name" => $request->name,
+                "type" => $request->type,
+                "taille" => $request->taille,
+                "stock" => $request->stock,
+                "availability" => $availability,
+                "price" => $request->price,
+
             ]);
+
+
 
             $uploadedFile->move("storage/img", $product->image);
 
@@ -93,18 +98,18 @@ class HomeController extends Controller
             Storage::put("public/img/" . $filename, $imagelink);
 
             $uploadedFile = $request->file("image");
-   
+
             $product->update([
-            "image" => $filename,
-            "name"=> $request->name,
-            "type"=> $request->type,
-            "taille"=> $request->taille,
-            "stock"=> $request->stock,
-            "availability"=> $availability,
-            "price"=> $request->price,
+                "image" => $filename,
+                "name" => $request->name,
+                "type" => $request->type,
+                "taille" => $request->taille,
+                "stock" => $request->stock,
+                "availability" => $availability,
+                "price" => $request->price,
             ]);
 
-    
+
         }
 
         return redirect()->route("product.index");
@@ -128,8 +133,7 @@ class HomeController extends Controller
     {
 
 
-// we validate  our request  with customized conditions
-
+        // we validate  our request  with customized conditions
         request()->validate([
             "image" => "nullable|mimes:png,jpg,webp,url|max:2048",
             "link" => "nullable|url",
@@ -137,59 +141,66 @@ class HomeController extends Controller
             "taille" => "required",
             "stock" => "required",
             "availability" => "required",
-            "price" => "required"
+            "price" => "required",
+            "cart_id" => "required"
         ]);
+        
+        // dd($request);
 
         $availability = false;
         if ($request->availability == "true") {
             $availability = true;
-        };
-// we create  a row  in  our database
+        }
+        ;
+        // we create  a row  in  our database
 // we call our model
 
         //& image
 
-            if ($request->has("image")) {
-                        
-                $image = $request->file("image");
-                $imageName = time() . "_" . $image->getClientOriginalName();
-                $image->storeAs("public/img", $imageName); 
+        if ($request->has("image")) {
 
-                Product::create([
-                    "image"=> $imageName,
-                    "name"=> $request->name,
-                    "type"=> $request->type,
-                    "taille"=> $request->taille,
-                    "stock"=> $request->stock,
-                    "availability"=> $availability,
-                    "price"=> $request->price,
-        
-                ]);
+            $image = $request->file("image");
+            $imageName = time() . "_" . $image->getClientOriginalName();
+            $image->storeAs("public/img", $imageName);
 
-            } else if ($request->filled("link")) {
+            Product::create([
+                "image" => $imageName,
+                "name" => $request->name,
+                "type" => $request->type,
+                "taille" => $request->taille,
+                "stock" => $request->stock,
+                "availability" => $availability,
+                "price" => $request->price,
+                "cart_id" => $request->cart_id
 
-                $imagelink = file_get_contents($request->link);
-                $extension = pathinfo($request->link, PATHINFO_EXTENSION);
-                $filename = uniqid() . "." . $extension;
-                Storage::put("public/img/" . $filename, $imagelink);
-                Product::create([
-                "image" => $filename,
-                "name"=> $request->name,
-                "type"=> $request->type,
-                "taille"=> $request->taille,
-                "stock"=> $request->stock,
-                "availability"=> $availability,
-                "price"=> $request->price,
             ]);
 
-           
+
+        } else if ($request->filled("link")) {
+
+            $imagelink = file_get_contents($request->link);
+            $extension = pathinfo($request->link, PATHINFO_EXTENSION);
+            $filename = uniqid() . "." . $extension;
+            Storage::put("public/img/" . $filename, $imagelink);
+            Product::create([
+                "image" => $filename,
+                "name" => $request->name,
+                "type" => $request->type,
+                "taille" => $request->taille,
+                "stock" => $request->stock,
+                "availability" => $availability,
+                "price" => $request->price,
+                "cart_id" => $request->cart_id
+            ]);
+
+
         }
 
         //&image
 
 
-        
-// we redirect the user to specefic page 
+
+        // we redirect the user to specefic page 
 
         return redirect()->back();
 
